@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "water_supply_requests")
 public class WaterSupplyRequest {
-
+	private String priority;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,7 +26,6 @@ public class WaterSupplyRequest {
     private String status;
 
     private LocalDateTime requestDate;
-    private String priority = "MEDIUM";
 
     @ManyToOne
     @JoinColumn(name = "zone_id")
@@ -99,10 +98,10 @@ public class WaterSupplyRequest {
         this.supplyZone = supplyZone;
     }
     public String getPriority() {
-    return priority;
-}
+        return priority;
+    }
 
-public void setPriority(String priority) {
-    this.priority = priority;
-  }
+    public void setPriority(String priority) {
+        this.priority = priority;
+    }
 }

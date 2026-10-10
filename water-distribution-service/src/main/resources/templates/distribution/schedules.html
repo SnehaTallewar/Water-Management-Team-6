@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Schedules')}"></head>
+<body>
+
+<header th:replace="~{fragments :: header}"></header>
+
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('schedules')}"></aside>
+
+    <main class="main">
+        <div th:replace="~{fragments :: flash}"></div>
+
+        <section class="section">
+            <div class="section-title">
+                <h2>Distribution Schedules</h2>
+                <a class="btn" th:href="@{/distribution/schedules/new}">+ Add Schedule</a>
+            </div>
+
+            <div class="panel">
+                <div class="table-wrap" th:if="${!schedules.isEmpty()}">
+                    <table style="min-width: 980px;">
+                        <thead>
+                        <tr><th>ID</th><th>Zone</th><th>Date</th><th>Time</th><th>Available (L)</th><th>Allocated (L)</th><th>Usage</th><th>Status</th><th>Allocate water</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="s : ${schedules}"
+                            th:with="remaining=${(s.availableLitres ?: 0) - (s.allocatedLitres ?: 0)},
+                                     pct=${@ui.percentOfInt(s.allocatedLitres, s.availableLitres)}">
+                            <td th:text="${s.id}"></td>
+                            <td th:text="${s.supplyZone != null ? s.supplyZone.name : '—'}"></td>
+                            <td th:text="${#temporals.format(s.distributionDate, 'dd MMM yyyy')}"></td>
+                            <td th:text="${#temporals.format(s.startTime, 'HH:mm')} + ' – ' + ${#temporals.format(s.endTime, 'HH:mm')}"></td>
+                            <td th:text="${s.availableLitres != null ? #numbers.formatInteger(s.availableLitres, 1, 'COMMA') : '—'}"></td>
+                            <td th:text="${s.allocatedLitres != null ? #numbers.formatInteger(s.allocatedLitres, 1, 'COMMA') : '0'}"></td>
+                            <td>
+                                <div class="bar-cell">
+                                    <div class="bar"><span th:style="'width:' + ${pct} + '%'"></span></div>
+                                    <span th:text="${pct} + '%'"></span>
+                                </div>
+                            </td>
+                            <td><span th:class="${@ui.badge(s.status)}" th:text="${s.status != null ? s.status : '—'}"></span></td>
+                            <td>
+                                <form class="inline-form" th:action="@{/distribution/schedules/{id}/allocate(id=${s.id})}" method="post">
+                                    <input type="number" name="litres" min="1" th:max="${remaining}" placeholder="Litres"
+                                           th:disabled="${remaining <= 0}" required>
+                                    <button type="submit" class="btn small" th:disabled="${remaining <= 0}">Allocate</button>
+                                </form>
+                                <div class="muted" style="font-size: 12px; margin-top: 4px;">
+                                    <span th:text="${#numbers.formatInteger(remaining, 1, 'COMMA')}">0</span> L remaining
+                                </div>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a class="btn secondary small" th:href="@{/distribution/schedules/{id}/edit(id=${s.id})}">Edit</a>
+                                    <form th:action="@{/distribution/schedules/{id}/delete(id=${s.id})}" method="post"
+                                          onsubmit="return confirm('Delete this schedule?');">
+                                        <button type="submit" class="btn danger small">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="empty" th:if="${schedules.isEmpty()}">No distribution schedules yet. Add the first one to get started.</p>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Supply Request')}"></head>
+<body>
+
+<header th:replace="~{fragments :: header}"></header>
+
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('requests')}"></aside>
+
+    <main class="main">
+        <div th:replace="~{fragments :: flash}"></div>
+
+        <section class="section">
+            <div class="section-title">
+                <h2 th:text="${pageTitle}">Supply Request</h2>
+            </div>
+
+            <div class="panel form-panel">
+                <form th:action="@{${formAction}}" th:object="${supplyRequest}" method="post">
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="requesterName">Requester name <span class="req">*</span></label>
+                            <input type="text" id="requesterName" th:field="*{requesterName}" maxlength="255" required>
+                        </div>
+                        <div class="field">
+                            <label for="requestedLitres">Requested litres <span class="req">*</span></label>
+                            <input type="number" id="requestedLitres" th:field="*{requestedLitres}" min="1" step="1" required>
+                        </div>
+                        <div class="field full">
+                            <label for="address">Address <span class="req">*</span></label>
+                            <input type="text" id="address" th:field="*{address}" maxlength="255" required>
+                        </div>
+                        <div class="field full">
+                            <label for="purpose">Purpose <span class="req">*</span></label>
+                            <input type="text" id="purpose" th:field="*{purpose}" maxlength="255"
+                                   placeholder="e.g. Drinking water, Construction, Agriculture" required>
+                        </div>
+                        <div class="field">
+                            <label for="zoneId">Supply zone</label>
+                            <select id="zoneId" name="zoneId">
+                                <option value="">— None —</option>
+                                <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"
+                                        th:selected="${supplyRequest.supplyZone != null and supplyRequest.supplyZone.id == z.id}"></option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="priority">Priority</label>
+                            <select id="priority" th:field="*{priority}">
+                                <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}"></option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="status">Status</label>
+                            <select id="status" th:field="*{status}">
+                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Save Request</button>
+                        <a class="btn secondary" th:href="@{/distribution/requests}">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+</body>
+</html>

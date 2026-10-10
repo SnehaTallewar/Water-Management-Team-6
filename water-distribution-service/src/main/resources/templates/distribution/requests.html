@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Supply Requests')}"></head>
+<body>
+
+<header th:replace="~{fragments :: header}"></header>
+
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('requests')}"></aside>
+
+    <main class="main">
+        <div th:replace="~{fragments :: flash}"></div>
+
+        <section class="section">
+            <div class="section-title">
+                <h2>Water Supply Requests</h2>
+                <a class="btn" th:href="@{/distribution/requests/new}">+ New Request</a>
+            </div>
+
+            <div class="panel">
+                <form class="filters" th:action="@{/distribution/requests}" method="get">
+                    <div>
+                        <label for="keyword">Search</label>
+                        <input type="text" id="keyword" name="keyword" th:value="${keyword}"
+                               placeholder="Requester, address or purpose">
+                    </div>
+                    <div>
+                        <label for="fStatus">Status</label>
+                        <select id="fStatus" name="status">
+                            <option value="">All</option>
+                            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                                    th:selected="${s == fStatus}"></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="fPriority">Priority</label>
+                        <select id="fPriority" name="priority">
+                            <option value="">All</option>
+                            <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}"
+                                    th:selected="${p == fPriority}"></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="fZone">Zone</label>
+                        <select id="fZone" name="zoneId">
+                            <option value="">All</option>
+                            <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"
+                                    th:selected="${fZoneId != null and fZoneId == z.id}"></option>
+                        </select>
+                    </div>
+                    <div class="filter-buttons">
+                        <button type="submit" class="btn">Search</button>
+                        <a class="btn secondary" th:href="@{/distribution/requests}" th:if="${filtering}">Clear</a>
+                    </div>
+                </form>
+
+                <div class="table-wrap" th:if="${!requests.isEmpty()}">
+                    <table style="min-width: 1000px;">
+                        <thead>
+                        <tr><th>ID</th><th>Requester</th><th>Address</th><th>Purpose</th><th>Zone</th><th>Litres</th><th>Priority</th><th>Status</th><th>Requested</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="r : ${requests}">
+                            <td th:text="${r.id}"></td>
+                            <td th:text="${r.requesterName}"></td>
+                            <td th:text="${r.address}"></td>
+                            <td th:text="${r.purpose}"></td>
+                            <td th:text="${r.supplyZone != null ? r.supplyZone.name : '—'}"></td>
+                            <td th:text="${r.requestedLitres != null ? #numbers.formatInteger(r.requestedLitres, 1, 'COMMA') : '—'}"></td>
+                            <td>
+                                <form class="inline-form" th:action="@{/distribution/requests/{id}/priority(id=${r.id})}" method="post">
+                                    <select name="priority" onchange="this.form.submit()" aria-label="Change priority">
+                                        <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}"
+                                                th:selected="${p == r.priority}"></option>
+                                    </select>
+                                    <noscript><button type="submit" class="btn small">Set</button></noscript>
+                                </form>
+                            </td>
+                            <td><span th:class="${@ui.badge(r.status)}" th:text="${r.status != null ? r.status : '—'}"></span></td>
+                            <td th:text="${#temporals.format(r.requestDate, 'dd MMM yyyy, HH:mm')}"></td>
+                            <td>
+                                <div class="actions">
+                                    <form th:if="${r.status == 'PENDING'}" th:action="@{/distribution/requests/{id}/status(id=${r.id})}" method="post">
+                                        <input type="hidden" name="status" value="APPROVED">
+                                        <button type="submit" class="btn small">Approve</button>
+                                    </form>
+                                    <form th:if="${r.status == 'PENDING'}" th:action="@{/distribution/requests/{id}/status(id=${r.id})}" method="post">
+                                        <input type="hidden" name="status" value="REJECTED">
+                                        <button type="submit" class="btn danger small">Reject</button>
+                                    </form>
+                                    <form th:if="${r.status == 'APPROVED'}" th:action="@{/distribution/requests/{id}/status(id=${r.id})}" method="post">
+                                        <input type="hidden" name="status" value="COMPLETED">
+                                        <button type="submit" class="btn small">Complete</button>
+                                    </form>
+                                    <a class="btn secondary small" th:href="@{/distribution/requests/{id}/edit(id=${r.id})}">Edit</a>
+                                    <form th:action="@{/distribution/requests/{id}/delete(id=${r.id})}" method="post"
+                                          onsubmit="return confirm('Delete this supply request?');">
+                                        <button type="submit" class="btn danger small">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="empty" th:if="${requests.isEmpty() and filtering}">No requests match your search.</p>
+                <p class="empty" th:if="${requests.isEmpty() and !filtering}">No supply requests yet.</p>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+</body>
+</html>

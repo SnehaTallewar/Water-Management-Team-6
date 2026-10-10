@@ -8,7 +8,9 @@ import java.time.LocalTime;
 @Entity
 @Table(name = "distribution_schedules")
 public class DistributionSchedule {
+	private Integer allocatedLitres;
 
+	private Integer availableLitres;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,8 +29,6 @@ public class DistributionSchedule {
     private LocalTime endTime;
 
     private String status;
-    private Integer availableLitres;
-    private Integer allocatedLitres;
 
     public DistributionSchedule() {
     }
@@ -80,19 +80,19 @@ public class DistributionSchedule {
     public void setStatus(String status) {
         this.status = status;
     }
+    public Integer getAllocatedLitres() {
+        return allocatedLitres;
+    }
+
+    public void setAllocatedLitres(Integer allocatedLitres) {
+        this.allocatedLitres = allocatedLitres;
+    }
+
     public Integer getAvailableLitres() {
-    return availableLitres;
-}
+        return availableLitres;
+    }
 
-public void setAvailableLitres(Integer availableLitres) {
-    this.availableLitres = availableLitres;
-}
-
-public Integer getAllocatedLitres() {
-    return allocatedLitres;
-}
-
-public void setAllocatedLitres(Integer allocatedLitres) {
-    this.allocatedLitres = allocatedLitres;
-   }
+    public void setAvailableLitres(Integer availableLitres) {
+        this.availableLitres = availableLitres;
+    }
 }

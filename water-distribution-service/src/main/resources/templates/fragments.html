@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<!-- <head> shared by every page -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' | Water Distribution'">Water Distribution</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<!-- Page header with a link back to the main dashboard -->
+<header class="header" th:fragment="header">
+    <div>
+        <h1>Water Management System</h1>
+        <p>Water Distribution Service</p>
+    </div>
+    <a class="back-link" th:href="${dashboardUrl}">&larr; Back to Main Dashboard</a>
+</header>
+
+<!-- Left navigation; "active" is the key of the current page -->
+<aside class="sidebar" th:fragment="sidebar(active)">
+    <h3>Distribution</h3>
+    <a th:href="@{/distribution}" th:classappend="${active == 'home'} ? 'active'">Overview</a>
+    <a th:href="@{/distribution/requests}" th:classappend="${active == 'requests'} ? 'active'">Supply Requests</a>
+    <a th:href="@{/distribution/schedules}" th:classappend="${active == 'schedules'} ? 'active'">Schedules</a>
+    <a th:href="@{/distribution/zones}" th:classappend="${active == 'zones'} ? 'active'">Supply Zones</a>
+    <a th:href="@{/distribution/tanks}" th:classappend="${active == 'tanks'} ? 'active'">Water Tanks</a>
+    <a th:href="@{/distribution/pipelines}" th:classappend="${active == 'pipelines'} ? 'active'">Pipelines</a>
+    <div class="nav-divider"></div>
+    <a th:href="${dashboardUrl}">Main Dashboard</a>
+</aside>
+
+<!-- Success / error messages -->
+<div th:fragment="flash">
+    <div class="alert success" role="status" th:if="${success != null}" th:text="${success}"></div>
+    <div class="alert error" role="alert" th:if="${error != null}" th:text="${error}"></div>
+</div>
+
+<footer th:fragment="footer">
+    Integrated Water &amp; Natural Resource Management System
+</footer>
+
+</body>
+</html>

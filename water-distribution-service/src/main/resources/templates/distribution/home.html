@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Overview')}"></head>
+<body>
+
+<header th:replace="~{fragments :: header}"></header>
+
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('home')}"></aside>
+
+    <main class="main">
+        <div th:replace="~{fragments :: flash}"></div>
+
+        <section class="section">
+            <div class="section-title">
+                <h2>Distribution Overview</h2>
+                <a class="btn" th:href="@{/distribution/requests/new}">+ New Supply Request</a>
+            </div>
+
+            <div class="cards">
+                <a class="card" th:href="@{/distribution/requests}">
+                    <h3>Supply Requests</h3>
+                    <div class="number" th:text="${requestCount}">0</div>
+                    <div class="sub"><span th:text="${pendingCount}">0</span> pending
+                        (<span th:text="${highPendingCount}">0</span> high priority)</div>
+                </a>
+                <a class="card" th:href="@{/distribution/schedules}">
+                    <h3>Distribution Schedules</h3>
+                    <div class="number" th:text="${scheduleCount}">0</div>
+                    <div class="sub"><span th:text="${#lists.size(upcomingSchedules)}">0</span> upcoming</div>
+                </a>
+                <a class="card" th:href="@{/distribution/zones}">
+                    <h3>Supply Zones</h3>
+                    <div class="number" th:text="${zoneCount}">0</div>
+                </a>
+                <a class="card" th:href="@{/distribution/tanks}">
+                    <h3>Water Tanks</h3>
+                    <div class="number" th:text="${tankCount}">0</div>
+                    <div class="sub"><span th:text="${lowTankCount}">0</span> at or below 25%</div>
+                </a>
+                <a class="card" th:href="@{/distribution/pipelines}">
+                    <h3>Pipelines</h3>
+                    <div class="number" th:text="${pipelineCount}">0</div>
+                </a>
+                <div class="card">
+                    <h3>Stored Water (all tanks)</h3>
+                    <div class="number" th:text="${#numbers.formatDecimal(totalStored, 1, 'COMMA', 0, 'POINT')} + ' L'">0 L</div>
+                    <div class="sub">of <span th:text="${#numbers.formatDecimal(totalCapacity, 1, 'COMMA', 0, 'POINT')}">0</span> L capacity
+                        (<span th:text="${@ui.percent(totalStored, totalCapacity)}">0</span>%)</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="two-col">
+                <div class="panel">
+                    <div class="toolbar">
+                        <h3>Recent Supply Requests</h3>
+                        <a class="btn secondary small" th:href="@{/distribution/requests}">View all</a>
+                    </div>
+                    <div class="table-wrap" th:if="${!recentRequests.isEmpty()}">
+                        <table style="min-width: 420px;">
+                            <thead>
+                            <tr><th>Requester</th><th>Litres</th><th>Priority</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="r : ${recentRequests}">
+                                <td th:text="${r.requesterName}"></td>
+                                <td th:text="${r.requestedLitres}"></td>
+                                <td><span th:class="${@ui.badge(r.priority)}" th:text="${r.priority}"></span></td>
+                                <td><span th:class="${@ui.badge(r.status)}" th:text="${r.status}"></span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="empty" th:if="${recentRequests.isEmpty()}">No supply requests yet.</p>
+                </div>
+
+                <div class="panel">
+                    <div class="toolbar">
+                        <h3>Upcoming Schedules</h3>
+                        <a class="btn secondary small" th:href="@{/distribution/schedules}">View all</a>
+                    </div>
+                    <div class="table-wrap" th:if="${!upcomingSchedules.isEmpty()}">
+                        <table style="min-width: 420px;">
+                            <thead>
+                            <tr><th>Zone</th><th>Date</th><th>Time</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="s : ${upcomingSchedules}">
+                                <td th:text="${s.supplyZone != null ? s.supplyZone.name : '—'}"></td>
+                                <td th:text="${#temporals.format(s.distributionDate, 'dd MMM yyyy')}"></td>
+                                <td th:text="${#temporals.format(s.startTime, 'HH:mm')} + ' – ' + ${#temporals.format(s.endTime, 'HH:mm')}"></td>
+                                <td><span th:class="${@ui.badge(s.status)}" th:text="${s.status}"></span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="empty" th:if="${upcomingSchedules.isEmpty()}">No upcoming schedules.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="panel">
+                <div class="toolbar">
+                    <h3>Tank Levels</h3>
+                    <a class="btn secondary small" th:href="@{/distribution/tanks}">Manage tanks</a>
+                </div>
+                <div class="table-wrap" th:if="${!tanks.isEmpty()}">
+                    <table>
+                        <thead>
+                        <tr><th>Tank</th><th>Location</th><th>Level</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="t : ${tanks}" th:with="pct=${@ui.percent(t.currentLevelLitres, t.capacityLitres)}">
+                            <td th:text="${t.name}"></td>
+                            <td th:text="${t.location != null and !t.location.isEmpty() ? t.location : '—'}"></td>
+                            <td>
+                                <div class="bar-cell">
+                                    <div class="bar"><span th:class="${@ui.tankBar(pct)}" th:style="'width:' + ${pct} + '%'"></span></div>
+                                    <span th:text="${pct} + '%'"></span>
+                                </div>
+                            </td>
+                            <td><span th:class="${@ui.badge(t.status)}" th:text="${t.status}"></span></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="empty" th:if="${tanks.isEmpty()}">No water tanks registered yet.</p>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+</body>
+</html>

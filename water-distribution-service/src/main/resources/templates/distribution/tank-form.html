@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Water Tank')}"></head>
+<body>
+
+<header th:replace="~{fragments :: header}"></header>
+
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('tanks')}"></aside>
+
+    <main class="main">
+        <div th:replace="~{fragments :: flash}"></div>
+
+        <section class="section">
+            <div class="section-title">
+                <h2 th:text="${pageTitle}">Water Tank</h2>
+            </div>
+
+            <div class="panel form-panel">
+                <form th:action="@{${formAction}}" th:object="${tank}" method="post">
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="name">Name <span class="req">*</span></label>
+                            <input type="text" id="name" th:field="*{name}" maxlength="255" required>
+                        </div>
+                        <div class="field">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" th:field="*{location}" maxlength="255">
+                        </div>
+                        <div class="field">
+                            <label for="capacityLitres">Capacity (litres) <span class="req">*</span></label>
+                            <input type="number" id="capacityLitres" th:field="*{capacityLitres}" min="0.01" step="0.01" required>
+                        </div>
+                        <div class="field">
+                            <label for="currentLevelLitres">Current level (litres) <span class="req">*</span></label>
+                            <input type="number" id="currentLevelLitres" th:field="*{currentLevelLitres}" min="0" step="0.01" required>
+                            <div class="hint">Cannot be higher than the capacity.</div>
+                        </div>
+                        <div class="field">
+                            <label for="status">Status</label>
+                            <select id="status" th:field="*{status}">
+                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Save Tank</button>
+                        <a class="btn secondary" th:href="@{/distribution/tanks}">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+</body>
+</html>

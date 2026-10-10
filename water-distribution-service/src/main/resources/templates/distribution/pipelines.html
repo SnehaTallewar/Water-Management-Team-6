@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Pipelines')}"></head>
+<body>
+
+<header th:replace="~{fragments :: header}"></header>
+
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('pipelines')}"></aside>
+
+    <main class="main">
+        <div th:replace="~{fragments :: flash}"></div>
+
+        <section class="section">
+            <div class="section-title">
+                <h2>Pipelines</h2>
+                <a class="btn" th:href="@{/distribution/pipelines/new}">+ Add Pipeline</a>
+            </div>
+
+            <div class="panel">
+                <div class="table-wrap" th:if="${!pipelines.isEmpty()}">
+                    <table>
+                        <thead>
+                        <tr><th>ID</th><th>Name</th><th>Length (km)</th><th>Material</th><th>Tank</th><th>Zone</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="p : ${pipelines}">
+                            <td th:text="${p.id}"></td>
+                            <td th:text="${p.name}"></td>
+                            <td th:text="${p.lengthKm != null ? p.lengthKm : '—'}"></td>
+                            <td th:text="${p.material != null and !p.material.isEmpty() ? p.material : '—'}"></td>
+                            <td th:text="${p.waterTank != null ? p.waterTank.name : '—'}"></td>
+                            <td th:text="${p.supplyZone != null ? p.supplyZone.name : '—'}"></td>
+                            <td><span th:class="${@ui.badge(p.status)}" th:text="${p.status != null ? p.status : '—'}"></span></td>
+                            <td>
+                                <div class="actions">
+                                    <a class="btn secondary small" th:href="@{/distribution/pipelines/{id}/edit(id=${p.id})}">Edit</a>
+                                    <form th:action="@{/distribution/pipelines/{id}/delete(id=${p.id})}" method="post"
+                                          onsubmit="return confirm('Delete this pipeline?');">
+                                        <button type="submit" class="btn danger small">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="empty" th:if="${pipelines.isEmpty()}">No pipelines yet. Add the first one to get started.</p>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+</body>
+</html>

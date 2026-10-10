@@ -19,7 +19,7 @@ public class SupplyZone{
 	public SupplyZone() {
 	}
 	
-	public Long getID() {
+	public Long getId() {
 		return id;
 	}
 	

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Schedule')}"></head>
+<body>
+
+<header th:replace="~{fragments :: header}"></header>
+
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('schedules')}"></aside>
+
+    <main class="main">
+        <div th:replace="~{fragments :: flash}"></div>
+
+        <section class="section">
+            <div class="section-title">
+                <h2 th:text="${pageTitle}">Schedule</h2>
+            </div>
+
+            <div class="panel form-panel">
+                <form th:action="@{${formAction}}" method="post">
+                    <div class="form-grid">
+                        <div class="field full">
+                            <label for="zoneId">Supply zone <span class="req">*</span></label>
+                            <select id="zoneId" name="zoneId" required>
+                                <option value="">— Select a zone —</option>
+                                <option th:each="z : ${zones}" th:value="${z.id}" th:text="${z.name}"
+                                        th:selected="${schedule.supplyZone != null and schedule.supplyZone.id == z.id}"></option>
+                            </select>
+                            <div class="hint" th:if="${zones.isEmpty()}">
+                                No zones exist yet. <a th:href="@{/distribution/zones/new}">Add a supply zone first.</a>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="distributionDate">Date <span class="req">*</span></label>
+                            <input type="date" id="distributionDate" name="distributionDate"
+                                   th:value="${#temporals.format(schedule.distributionDate, 'yyyy-MM-dd')}" required>
+                        </div>
+                        <div class="field">
+                            <label for="status">Status</label>
+                            <select id="status" name="status">
+                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"
+                                        th:selected="${s == schedule.status}"></option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="startTime">Start time <span class="req">*</span></label>
+                            <input type="time" id="startTime" name="startTime"
+                                   th:value="${#temporals.format(schedule.startTime, 'HH:mm')}" required>
+                        </div>
+                        <div class="field">
+                            <label for="endTime">End time <span class="req">*</span></label>
+                            <input type="time" id="endTime" name="endTime"
+                                   th:value="${#temporals.format(schedule.endTime, 'HH:mm')}" required>
+                        </div>
+                        <div class="field">
+                            <label for="availableLitres">Available litres <span class="req">*</span></label>
+                            <input type="number" id="availableLitres" name="availableLitres" min="0" step="1"
+                                   th:value="${schedule.availableLitres}" required>
+                        </div>
+                        <div class="field">
+                            <label for="allocatedLitres">Allocated litres</label>
+                            <input type="number" id="allocatedLitres" name="allocatedLitres" min="0" step="1"
+                                   th:value="${schedule.allocatedLitres != null ? schedule.allocatedLitres : 0}">
+                            <div class="hint">Cannot be higher than the available litres.</div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Save Schedule</button>
+                        <a class="btn secondary" th:href="@{/distribution/schedules}">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+</body>
+</html>

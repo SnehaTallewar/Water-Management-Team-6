@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Supply Zones')}"></head>
+<body>
+
+<header th:replace="~{fragments :: header}"></header>
+
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('zones')}"></aside>
+
+    <main class="main">
+        <div th:replace="~{fragments :: flash}"></div>
+
+        <section class="section">
+            <div class="section-title">
+                <h2>Supply Zones</h2>
+                <a class="btn" th:href="@{/distribution/zones/new}">+ Add Zone</a>
+            </div>
+
+            <div class="panel">
+                <div class="table-wrap" th:if="${!zones.isEmpty()}">
+                    <table>
+                        <thead>
+                        <tr><th>ID</th><th>Name</th><th>Location</th><th>Population</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="z : ${zones}">
+                            <td th:text="${z.id}"></td>
+                            <td th:text="${z.name}"></td>
+                            <td th:text="${z.location != null and !z.location.isEmpty() ? z.location : '—'}"></td>
+                            <td th:text="${z.population != null ? #numbers.formatInteger(z.population, 1, 'COMMA') : '—'}"></td>
+                            <td><span th:class="${@ui.badge(z.status)}" th:text="${z.status != null ? z.status : '—'}"></span></td>
+                            <td>
+                                <div class="actions">
+                                    <a class="btn secondary small" th:href="@{/distribution/zones/{id}/edit(id=${z.id})}">Edit</a>
+                                    <form th:action="@{/distribution/zones/{id}/delete(id=${z.id})}" method="post"
+                                          onsubmit="return confirm('Delete this supply zone?');">
+                                        <button type="submit" class="btn danger small">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="empty" th:if="${zones.isEmpty()}">No supply zones yet. Add the first one to get started.</p>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+</body>
+</html>

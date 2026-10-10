@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Supply Zone')}"></head>
+<body>
+
+<header th:replace="~{fragments :: header}"></header>
+
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('zones')}"></aside>
+
+    <main class="main">
+        <div th:replace="~{fragments :: flash}"></div>
+
+        <section class="section">
+            <div class="section-title">
+                <h2 th:text="${pageTitle}">Supply Zone</h2>
+            </div>
+
+            <div class="panel form-panel">
+                <form th:action="@{${formAction}}" th:object="${zone}" method="post">
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="name">Name <span class="req">*</span></label>
+                            <input type="text" id="name" th:field="*{name}" maxlength="255" required>
+                        </div>
+                        <div class="field">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" th:field="*{location}" maxlength="255">
+                        </div>
+                        <div class="field">
+                            <label for="population">Population</label>
+                            <input type="number" id="population" th:field="*{population}" min="0" step="1">
+                        </div>
+                        <div class="field">
+                            <label for="status">Status</label>
+                            <select id="status" th:field="*{status}">
+                                <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Save Zone</button>
+                        <a class="btn secondary" th:href="@{/distribution/zones}">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<footer th:replace="~{fragments :: footer}"></footer>
+
+</body>
+</html>
