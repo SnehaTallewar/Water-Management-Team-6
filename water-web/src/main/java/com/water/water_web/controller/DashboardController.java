@@ -44,7 +44,6 @@ public class DashboardController {
     @GetMapping("/")
     public String dashboard(Model model) {
 
-        
         List<Map<String, Object>> reservoirs =
                 fetchList(resourceUrl, "/api/reservoirs");
 
@@ -53,55 +52,92 @@ public class DashboardController {
 
         List<Map<String, Object>> qualityRecords =
                 fetchList(qualityUrl, "/api/quality");
-        System.out.println("Quality URL: " + qualityUrl);
-        System.out.println("Quality Records: " + qualityRecords);
-        System.out.println("Quality Columns: " + getColumns(qualityRecords));
+        
 
-        List<Map<String, Object>> infrastructureRecords =
-                fetchList(infrastructureUrl, "/api/infrastructure");
+        // Infrastructure API returns an object containing three lists.
+        Map<String, Object> infrastructureData =
+                fetchMap(infrastructureUrl, "/api/infrastructure");
+
+        List<Map<String, Object>> infrastructurePipelines =
+                getRecordList(infrastructureData, "pipelines");
+
+        List<Map<String, Object>> infrastructurePumps =
+                getRecordList(infrastructureData, "pumps");
+
+        List<Map<String, Object>> infrastructureMaintenance =
+                getRecordList(infrastructureData, "maintenance");
+        model.addAttribute("infrastructurePumpColumns",
+                getColumns(infrastructurePumps));
+
+        model.addAttribute("infrastructurePipelineColumns",
+                getColumns(infrastructurePipelines));
+
+        model.addAttribute("infrastructureMaintenanceColumns",
+                getColumns(infrastructureMaintenance));
 
         List<Map<String, Object>> complaints =
                 fetchList(complaintUrl, "/api/complaints");
-
-        
+     // Dashboard data
         model.addAttribute("reservoirs", reservoirs);
         model.addAttribute("distributions", distributions);
+
         model.addAttribute("qualityRecords", qualityRecords);
-        model.addAttribute("infrastructureRecords", infrastructureRecords);
+
+        model.addAttribute("qualityRecords", qualityRecords);
+
+
+model.addAttribute("qualityRecords", qualityRecords);
+
+List<String> qualityColumns = getColumns(qualityRecords);
+
+qualityColumns.removeIf(column ->
+        column.equalsIgnoreCase("inspectorNotes"));
+
+model.addAttribute("qualityColumns", qualityColumns);
+System.out.println("QUALITY COLUMNS: " + qualityColumns);
         model.addAttribute("complaints", complaints);
 
-        
+        model.addAttribute("infrastructurePipelines", infrastructurePipelines);
+        model.addAttribute("infrastructurePumps", infrastructurePumps);
+        model.addAttribute("infrastructureMaintenance", infrastructureMaintenance);
+
+        // Service status
         model.addAttribute("resourceOnline",
                 isOnline(resourceUrl, "/api/reservoirs"));
+
         model.addAttribute("distributionOnline",
                 isOnline(distributionUrl, "/api/distributions"));
+
         model.addAttribute("qualityOnline",
                 isOnline(qualityUrl, "/api/quality"));
+
         model.addAttribute("infrastructureOnline",
                 isOnline(infrastructureUrl, "/api/infrastructure"));
+
         model.addAttribute("complaintOnline",
                 isOnline(complaintUrl, "/api/complaints"));
 
-        
+        // Low-water alert count
         long lowWaterCount = reservoirs.stream()
                 .filter(r -> Boolean.TRUE.equals(r.get("lowWater")))
                 .count();
 
         model.addAttribute("lowWaterCount", lowWaterCount);
 
-        
+        // Dynamic columns for list-based tables
         model.addAttribute("distributionColumns",
                 getColumns(distributions));
+
         model.addAttribute("qualityColumns",
                 getColumns(qualityRecords));
-        model.addAttribute("infrastructureColumns",
-                getColumns(infrastructureRecords));
+
         model.addAttribute("complaintColumns",
                 getColumns(complaints));
 
         return "dashboard";
     }
 
+    // Fetch a JSON array represented as a List.
     private List<Map<String, Object>> fetchList(
             String baseUrl, String endpoint) {
 
@@ -114,13 +150,64 @@ public class DashboardController {
 
             return result == null ? new ArrayList<>() : result;
 
-        }  catch (Exception e) {
+        } catch (Exception e) {
             System.err.println(
                     "Failed to call " + baseUrl + endpoint
-                    + ": " + e.getMessage()
-                );
-                return new ArrayList<>();
+                    + ": " + e.getMessage());
+
+            return new ArrayList<>();
+        }
+    }
+
+    // Fetch a JSON object containing multiple lists.
+    private Map<String, Object> fetchMap(
+            String baseUrl, String endpoint) {
+
+        try {
+            Map<String, Object> result = restClient.get()
+                    .uri(baseUrl + endpoint)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<
+                            Map<String, Object>>() {});
+
+            return result == null ? new LinkedHashMap<>() : result;
+
+        } catch (Exception e) {
+            System.err.println(
+                    "Failed to call " + baseUrl + endpoint
+                    + ": " + e.getMessage());
+
+            return new LinkedHashMap<>();
+        }
+    }
+
+    // Safely extract a list from the Infrastructure response.
+    private List<Map<String, Object>> getRecordList(
+            Map<String, Object> data, String key) {
+
+        Object value = data.get(key);
+
+        if (!(value instanceof List<?> list)) {
+            return new ArrayList<>();
+        }
+
+        List<Map<String, Object>> records = new ArrayList<>();
+
+        for (Object item : list) {
+            if (item instanceof Map<?, ?> map) {
+                Map<String, Object> record = new LinkedHashMap<>();
+
+                map.forEach((k, v) -> {
+                    if (k instanceof String) {
+                        record.put((String) k, v);
+                    }
+                });
+
+                records.add(record);
             }
+        }
+
+        return records;
     }
 
     private boolean isOnline(String baseUrl, String endpoint) {
@@ -135,11 +222,10 @@ public class DashboardController {
         } catch (Exception e) {
             System.err.println(
                     "Failed to call " + baseUrl + endpoint
-                    + ": " + e.getMessage()
-                );
+                    + ": " + e.getMessage());
+
             return false;
-                
-            }
+        }
     }
 
     private List<String> getColumns(
@@ -150,7 +236,6 @@ public class DashboardController {
         }
 
         return new ArrayList<>(
-                new LinkedHashMap<>(records.get(0)).keySet());
+                records.get(0).keySet());
     }
 }
-

@@ -20,7 +20,7 @@ public class WaterQualityDTO {
     private Double turbidity;
 
     private String complianceStatus;
-    private String inspectorNotes;
+
 
     public WaterQualityDTO() {
     }
@@ -129,11 +129,5 @@ public class WaterQualityDTO {
         this.complianceStatus = complianceStatus;
     }
 
-    public String getInspectorNotes() {
-        return inspectorNotes;
-    }
-
-    public void setInspectorNotes(String inspectorNotes) {
-        this.inspectorNotes = inspectorNotes;
-    }
+    
 }
