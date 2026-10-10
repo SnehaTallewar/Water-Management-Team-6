@@ -26,6 +26,7 @@ public class WaterSupplyRequest {
     private String status;
 
     private LocalDateTime requestDate;
+    private String priority = "MEDIUM";
 
     @ManyToOne
     @JoinColumn(name = "zone_id")
@@ -97,4 +98,11 @@ public class WaterSupplyRequest {
     public void setSupplyZone(SupplyZone supplyZone) {
         this.supplyZone = supplyZone;
     }
+    public String getPriority() {
+    return priority;
+}
+
+public void setPriority(String priority) {
+    this.priority = priority;
+  }
 }
