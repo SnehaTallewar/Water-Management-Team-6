@@ -27,6 +27,8 @@ public class DistributionSchedule {
     private LocalTime endTime;
 
     private String status;
+    private Integer availableLitres;
+    private Integer allocatedLitres;
 
     public DistributionSchedule() {
     }
@@ -78,4 +80,19 @@ public class DistributionSchedule {
     public void setStatus(String status) {
         this.status = status;
     }
+    public Integer getAvailableLitres() {
+    return availableLitres;
+}
+
+public void setAvailableLitres(Integer availableLitres) {
+    this.availableLitres = availableLitres;
+}
+
+public Integer getAllocatedLitres() {
+    return allocatedLitres;
+}
+
+public void setAllocatedLitres(Integer allocatedLitres) {
+    this.allocatedLitres = allocatedLitres;
+   }
 }
