@@ -37,17 +37,6 @@ public class ComplaintService {
 	            complaint.setStatus(status);
 	            repository.save(complaint);
 	        }
-	    
-	        return result;
-	    }
-	    public Optional<Complaint> updateStatus(Long id, String status) {
-	        Optional<Complaint> result = repository.findById(id);
-
-	        if (result.isPresent()) {
-	            Complaint complaint = result.get();
-	            complaint.setStatus(status);
-	            repository.save(complaint);
-	        }
 
 	        return result;
 	    }

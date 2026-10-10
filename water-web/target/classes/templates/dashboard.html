@@ -69,8 +69,10 @@
 
                 <div class="card">
                     <h3>Infrastructure Records</h3>
-                    <div class="number"
-                         th:text="${infrastructureRecords.size()}">0</div>
+					<div class="number"
+					     th:text="${infrastructurePumps.size()
+					        + infrastructurePipelines.size()
+					        + infrastructureMaintenance.size()}">0</div>
                 </div>
 
                 <div class="card">
@@ -208,23 +210,23 @@
                     Water Quality Service is not connected yet.
                 </p>
 
-                <div class="table-wrap"
-                     th:if="${!qualityRecords.isEmpty()}">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th th:each="column : ${qualityColumns}"
-                                th:text="${column}"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="record : ${qualityRecords}">
-                            <td th:each="column : ${qualityColumns}"
-                                th:text="${record.get(column)}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+                  <div class="table-wrap"
+				     th:if="${!qualityRecords.isEmpty()}">
+				    <table>
+						<thead>
+						<tr>
+						    <th th:each="column : ${qualityColumns}"
+						        th:text="${column}"></th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr th:each="record : ${qualityRecords}">
+						    <td th:each="column : ${qualityColumns}"
+						        th:text="${record.get(column)}"></td>
+						</tr>
+						</tbody>
+				    </table>
+				</div>
 
                 <p class="message"
                    th:if="${qualityOnline and qualityRecords.isEmpty()}">
@@ -233,46 +235,95 @@
             </div>
         </section>
 
-        <section class="section" id="infrastructure">
-            <div class="section-title">
-                <h2>Water Infrastructure</h2>
-                <span class="status"
-                      th:classappend="${infrastructureOnline}
-                        ? ' online' : ' offline'"
-                      th:text="${infrastructureOnline}
-                        ? 'Service Online' : 'Service Offline'">
-                </span>
-            </div>
+		<section class="section" id="infrastructure">
+		    <div class="section-title">
+		        <h2>Water Infrastructure</h2>
+		        <span class="status"
+		              th:classappend="${infrastructureOnline}
+		                ? ' online' : ' offline'"
+		              th:text="${infrastructureOnline}
+		                ? 'Service Online' : 'Service Offline'">
+		        </span>
+		    </div>
 
-            <div class="panel">
-                <p class="message" th:if="${!infrastructureOnline}">
-                    Infrastructure Service is not connected yet.
-                </p>
+		    <div class="panel">
+		        <p class="message" th:if="${!infrastructureOnline}">
+		            Infrastructure Service is not connected yet.
+		        </p>
 
-                <div class="table-wrap"
-                     th:if="${!infrastructureRecords.isEmpty()}">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th th:each="column : ${infrastructureColumns}"
-                                th:text="${column}"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="record : ${infrastructureRecords}">
-                            <td th:each="column : ${infrastructureColumns}"
-                                th:text="${record.get(column)}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+		        <!-- PUMPS -->
+		        <h3>Pumps</h3>
+				<div class="table-wrap"
+				     th:if="${!infrastructurePumps.isEmpty()}">
+				    <table>
+				        <thead>
+				        <tr>
+				            <th th:each="column : ${infrastructurePumpColumns}"
+				                th:text="${column}"></th>
+				        </tr>
+				        </thead>
+				        <tbody>
+				        <tr th:each="record : ${infrastructurePumps}">
+				            <td th:each="column : ${infrastructurePumpColumns}"
+				                th:text="${record.get(column)}"></td>
+				        </tr>
+				        </tbody>
+				    </table>
+				</div>
+		        <p class="message"
+		           th:if="${infrastructureOnline and infrastructurePumps.isEmpty()}">
+		            No pump records found.
+		        </p>
 
-                <p class="message"
-                   th:if="${infrastructureOnline and infrastructureRecords.isEmpty()}">
-                    No infrastructure records found.
-                </p>
-            </div>
-        </section>
+		        <!-- PIPELINES -->
+		        <h3>Pipelines</h3>
+		        <div class="table-wrap"
+		             th:if="${!infrastructurePipelines.isEmpty()}">
+		            <table>
+		                <thead>
+		                <tr>
+		                    <th th:each="column : ${infrastructurePipelines[0].keySet()}"
+		                        th:text="${column}"></th>
+		                </tr>
+		                </thead>
+		                <tbody>
+		                <tr th:each="record : ${infrastructurePipelines}">
+		                    <td th:each="column : ${infrastructurePipelines[0].keySet()}"
+		                        th:text="${record.get(column)}"></td>
+		                </tr>
+		                </tbody>
+		            </table>
+		        </div>
+		        <p class="message"
+		           th:if="${infrastructureOnline and infrastructurePipelines.isEmpty()}">
+		            No pipeline records found.
+		        </p>
+
+		        <!-- MAINTENANCE -->
+		        <h3>Maintenance</h3>
+		        <div class="table-wrap"
+		             th:if="${!infrastructureMaintenance.isEmpty()}">
+		            <table>
+		                <thead>
+		                <tr>
+		                    <th th:each="column : ${infrastructureMaintenance[0].keySet()}"
+		                        th:text="${column}"></th>
+		                </tr>
+		                </thead>
+		                <tbody>
+		                <tr th:each="record : ${infrastructureMaintenance}">
+		                    <td th:each="column : ${infrastructureMaintenance[0].keySet()}"
+		                        th:text="${record.get(column)}"></td>
+		                </tr>
+		                </tbody>
+		            </table>
+		        </div>
+		        <p class="message"
+		           th:if="${infrastructureOnline and infrastructureMaintenance.isEmpty()}">
+		            No maintenance records found.
+		        </p>
+		    </div>
+		</section>
 
         
         <section class="section" id="complaints">
