@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Water Management Dashboard</title>
+
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+
+<header class="header">
+    <h1>Water Management System</h1>
+    <p>Integrated Water &amp; Natural Resource Management</p>
+</header>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <h3>Navigation</h3>
+
+        <a href="#overview"> Dashboard</a>
+        <a href="#resources">Water Resources</a>
+        <a href="#distribution">Distribution</a>
+        <a href="#quality">Water Quality</a>
+        <a href="#infrastructure">Infrastructure</a>
+        <a href="#complaints">Complaints</a>
+    </aside>
+
+    <main class="main">
+        <section class="section" id="overview">
+            <div class="section-title">
+                <h2>Dashboard Overview</h2>
+                <button class="refresh"
+                        onclick="window.location.reload()">
+                    ↻ Refresh Data
+                </button>
+            </div>
+
+            <div class="cards">
+
+                <div class="card">
+                    <h3>Total Reservoirs</h3>
+                    <div class="number"
+                         th:text="${reservoirs.size()}">0</div>
+                </div>
+
+                <div class="card">
+                    <h3>Low-Water Reservoirs</h3>
+                    <div class="number"
+                         th:text="${lowWaterCount}">0</div>
+                </div>
+
+                <div class="card">
+                    <h3>Distribution Records</h3>
+                    <div class="number"
+                         th:text="${distributions.size()}">0</div>
+                </div>
+
+                <div class="card">
+                    <h3>Quality Records</h3>
+                    <div class="number"
+                         th:text="${qualityRecords.size()}">0</div>
+                </div>
+
+                <div class="card">
+                    <h3>Infrastructure Records</h3>
+                    <div class="number"
+                         th:text="${infrastructureRecords.size()}">0</div>
+                </div>
+
+                <div class="card">
+                    <h3>Complaint Records</h3>
+                    <div class="number"
+                         th:text="${complaints.size()}">0</div>
+                </div>
+
+            </div>
+        </section>
+
+       
+        <section class="section" id="resources">
+            <div class="section-title">
+                <h2>Water Resources</h2>
+
+                <span class="status"
+                      th:classappend="${resourceOnline}
+                        ? ' online' : ' offline'"
+                      th:text="${resourceOnline}
+                        ? 'Service Online' : 'Service Offline'">
+                    Service status
+                </span>
+            </div>
+
+            <div class="panel">
+                <h3>Reservoir Details</h3>
+
+                <p class="message"
+                   th:if="${!resourceOnline}">
+                    Cannot connect to the Resource Service.
+                    Check its URL and make sure it is running.
+                </p>
+
+                <div class="table-wrap"
+                     th:if="${!reservoirs.isEmpty()}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Capacity</th>
+                            <th>Current Level</th>
+                            <th>Inflow</th>
+                            <th>Outflow</th>
+                            <th>Water %</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr th:each="r : ${reservoirs}">
+                            <td th:text="${r['id']}"></td>
+                            <td th:text="${r['name']}"></td>
+                            <td th:text="${r['location']}"></td>
+                            <td th:text="${r['capacity']}"></td>
+                            <td th:text="${r['currentWaterLevel']}"></td>
+                            <td th:text="${r['inflow']}"></td>
+                            <td th:text="${r['outflow']}"></td>
+                            <td th:text="${r['waterPercentage']} + '%'"></td>
+
+                            <td>
+                                <span th:if="${r['lowWater'] == true}"
+                                      class="low">Low Water</span>
+                                <span th:if="${r['lowWater'] != true}"
+                                      class="normal">Normal</span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="message"
+                   th:if="${resourceOnline and reservoirs.isEmpty()}">
+                    No reservoir records found.
+                </p>
+            </div>
+        </section>
+
+        <section class="section" id="distribution">
+            <div class="section-title">
+                <h2>Water Distribution</h2>
+                <span class="status"
+                      th:classappend="${distributionOnline}
+                        ? ' online' : ' offline'"
+                      th:text="${distributionOnline}
+                        ? 'Service Online' : 'Service Offline'">
+                </span>
+            </div>
+
+            <div class="panel">
+                <p class="message" th:if="${!distributionOnline}">
+                    Distribution Service is not connected yet.
+                </p>
+
+                <div class="table-wrap"
+                     th:if="${!distributions.isEmpty()}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th th:each="column : ${distributionColumns}"
+                                th:text="${column}"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="record : ${distributions}">
+                            <td th:each="column : ${distributionColumns}"
+                                th:text="${record.get(column)}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="message"
+                   th:if="${distributionOnline and distributions.isEmpty()}">
+                    No distribution records found.
+                </p>
+            </div>
+        </section>
+
+        <section class="section" id="quality">
+            <div class="section-title">
+                <h2>Water Quality</h2>
+                <span class="status"
+                      th:classappend="${qualityOnline}
+                        ? ' online' : ' offline'"
+                      th:text="${qualityOnline}
+                        ? 'Service Online' : 'Service Offline'">
+                </span>
+            </div>
+
+            <div class="panel">
+                <p class="message" th:if="${!qualityOnline}">
+                    Water Quality Service is not connected yet.
+                </p>
+
+                <div class="table-wrap"
+                     th:if="${!qualityRecords.isEmpty()}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th th:each="column : ${qualityColumns}"
+                                th:text="${column}"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="record : ${qualityRecords}">
+                            <td th:each="column : ${qualityColumns}"
+                                th:text="${record.get(column)}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="message"
+                   th:if="${qualityOnline and qualityRecords.isEmpty()}">
+                    No water quality records found.
+                </p>
+            </div>
+        </section>
+
+        <section class="section" id="infrastructure">
+            <div class="section-title">
+                <h2>Water Infrastructure</h2>
+                <span class="status"
+                      th:classappend="${infrastructureOnline}
+                        ? ' online' : ' offline'"
+                      th:text="${infrastructureOnline}
+                        ? 'Service Online' : 'Service Offline'">
+                </span>
+            </div>
+
+            <div class="panel">
+                <p class="message" th:if="${!infrastructureOnline}">
+                    Infrastructure Service is not connected yet.
+                </p>
+
+                <div class="table-wrap"
+                     th:if="${!infrastructureRecords.isEmpty()}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th th:each="column : ${infrastructureColumns}"
+                                th:text="${column}"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="record : ${infrastructureRecords}">
+                            <td th:each="column : ${infrastructureColumns}"
+                                th:text="${record.get(column)}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="message"
+                   th:if="${infrastructureOnline and infrastructureRecords.isEmpty()}">
+                    No infrastructure records found.
+                </p>
+            </div>
+        </section>
+
+        
+        <section class="section" id="complaints">
+            <div class="section-title">
+                <h2>Public Complaints</h2>
+                <span class="status"
+                      th:classappend="${complaintOnline}
+                        ? ' online' : ' offline'"
+                      th:text="${complaintOnline}
+                        ? 'Service Online' : 'Service Offline'">
+                </span>
+            </div>
+
+            <div class="panel">
+                <p class="message" th:if="${!complaintOnline}">
+                    Complaint Service is not connected yet.
+                </p>
+
+                <div class="table-wrap"
+                     th:if="${!complaints.isEmpty()}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th th:each="column : ${complaintColumns}"
+                                th:text="${column}"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="record : ${complaints}">
+                            <td th:each="column : ${complaintColumns}"
+                                th:text="${record.get(column)}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p class="message"
+                   th:if="${complaintOnline and complaints.isEmpty()}">
+                    No complaints found.
+                </p>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<footer>
+    Integrated Water &amp; Natural Resource Management System
+</footer>
+
+</body>
+</html>
