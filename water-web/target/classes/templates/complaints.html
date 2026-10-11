@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Complaints</title>
+	<link rel="stylesheet" th:href="@{/css/modules.css}">
+</head>
+<body data-module="complaints">
+<h1>Water Complaints</h1>
+<p><a th:href="@{/}">← Dashboard</a></p>
+
+<h2>Submit Complaint</h2>
+<form data-endpoint="/ui-api/complaints/api/complaints">
+    <label>Name <input name="name" required></label><br>
+    <label>Location <input name="location" required></label><br>
+    <label>Category <input name="category" required></label><br>
+    <label>Description <textarea name="description" required></textarea></label><br>
+    <button type="submit">Submit Complaint</button>
+</form>
+
+<h2>Complaint Records</h2>
+<div id="records">Loading...</div>
+<script th:src="@{/js/modules.js}"></script>
+</body>
+</html>

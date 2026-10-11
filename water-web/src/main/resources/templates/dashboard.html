@@ -23,12 +23,11 @@
     <aside class="sidebar">
         <h3>Navigation</h3>
 
-        <a href="#overview"> Dashboard</a>
-        <a href="#resources">Water Resources</a>
-        <a href="#distribution">Distribution</a>
-        <a href="#quality">Water Quality</a>
-        <a href="#infrastructure">Infrastructure</a>
-        <a href="#complaints">Complaints</a>
+		<a th:href="@{/resources}">Resources</a>
+		<a th:href="@{/quality}">Water Quality</a>
+		<a th:href="@{/infrastructure}">Infrastructure</a>
+		<a th:href="@{/distribution}">Water Distribution</a>
+		<a th:href="@{/complaints}">Complaints</a>
     </aside>
 
     <main class="main">
@@ -85,7 +84,45 @@
         </section>
 
        
-        <section class="section" id="resources">
+		
+		<section class="section" id="resources">
+		    <h2>Reservoir Details</h2>
+
+		    <div class="table-container">
+		        <table>
+		            <thead>
+		                <tr>
+		                    <th>ID</th>
+		                    <th>Reservoir Name</th>
+		                    <th>Location</th>
+		                    <th>Capacity</th>
+		                    <th>Current Water Level</th>
+		                    <th>Inflow</th>
+		                    <th>Outflow</th>
+		                </tr>
+		            </thead>
+
+		            <tbody>
+		                <tr th:each="reservoir : ${reservoirs}">
+		                    <td th:text="${reservoir.id}"></td>
+		                    <td th:text="${reservoir.name}"></td>
+		                    <td th:text="${reservoir.location}"></td>
+		                    <td th:text="${reservoir.capacity}"></td>
+		                    <td th:text="${reservoir.currentWaterLevel}"></td>
+		                    <td th:text="${reservoir.inflow}"></td>
+		                    <td th:text="${reservoir.outflow}"></td>
+		                </tr>
+
+		                <tr th:if="${#lists.isEmpty(reservoirs)}">
+		                    <td colspan="7" style="text-align: center;">
+		                        No reservoir records available.
+		                    </td>
+		                </tr>
+		            </tbody>
+		        </table>
+		    </div>
+		</section>
+		
             <div class="section-title">
                 <h2>Water Resources</h2>
 

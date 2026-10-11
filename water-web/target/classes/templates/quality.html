@@ -1,0 +1,305 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Quality Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #243247;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #176b87;
+        }
+
+        h2 {
+            color: #176b87;
+            margin-top: 0;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #176b87;
+            font-weight: bold;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccd6e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid #8dd3e6;
+            border-color: #176b87;
+        }
+
+        button {
+            border: none;
+            padding: 11px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            background: #176b87;
+            color: white;
+        }
+
+        button:hover {
+            background: #10546b;
+        }
+
+        .submit-row {
+            margin-top: 20px;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5eaf0;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #e7f3f7;
+            color: #176b87;
+        }
+
+        tr:hover td {
+            background: #f8fbfd;
+        }
+
+        #pageMessage {
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .hint {
+            color: #66758a;
+            font-size: 13px;
+        }
+
+        @media (max-width: 750px) {
+            body {
+                padding: 16px;
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body data-module="quality">
+<div class="container">
+
+    <div class="header">
+        <h1>Water Quality Management</h1>
+        <a class="back-link" th:href="@{/}">← Back to Dashboard</a>
+    </div>
+
+    <section class="card">
+        <h2>Record a Water Quality Test</h2>
+        <p class="hint">
+            Enter the water resource ID and available test measurements.
+        </p>
+
+        <form id="qualityForm"
+              data-endpoint="/ui-api/quality/api/quality">
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="resourceId">Resource ID *</label>
+                    <input id="resourceId" name="resourceId"
+                           type="number" min="1" step="1" required>
+                </div>
+
+                <div class="field">
+                    <label for="testDate">Test Date *</label>
+                    <input id="testDate" name="testDate"
+                           type="date" required>
+                </div>
+
+                <div class="field">
+                    <label for="inspectionDate">Inspection Date</label>
+                    <input id="inspectionDate" name="inspectionDate"
+                           type="date">
+                </div>
+
+                <div class="field">
+                    <label for="ph">pH</label>
+                    <input id="ph" name="ph" type="number"
+                           min="0" max="14" step="any">
+                </div>
+
+                <div class="field">
+                    <label for="hardness">Hardness</label>
+                    <input id="hardness" name="hardness"
+                           type="number" min="0" step="any">
+                </div>
+
+                <div class="field">
+                    <label for="solids">Solids</label>
+                    <input id="solids" name="solids"
+                           type="number" min="0" step="any">
+                </div>
+
+                <div class="field">
+                    <label for="chloramines">Chloramines</label>
+                    <input id="chloramines" name="chloramines"
+                           type="number" min="0" step="any">
+                </div>
+
+                <div class="field">
+                    <label for="sulfate">Sulfate</label>
+                    <input id="sulfate" name="sulfate"
+                           type="number" min="0" step="any">
+                </div>
+
+                <div class="field">
+                    <label for="conductivity">Conductivity</label>
+                    <input id="conductivity" name="conductivity"
+                           type="number" min="0" step="any">
+                </div>
+
+                <div class="field">
+                    <label for="organicCarbon">Organic Carbon</label>
+                    <input id="organicCarbon" name="organicCarbon"
+                           type="number" min="0" step="any">
+                </div>
+
+                <div class="field">
+                    <label for="trihalomethanes">Trihalomethanes</label>
+                    <input id="trihalomethanes" name="trihalomethanes"
+                           type="number" min="0" step="any">
+                </div>
+
+                <div class="field">
+                    <label for="turbidity">Turbidity</label>
+                    <input id="turbidity" name="turbidity"
+                           type="number" min="0" step="any">
+                </div>
+
+                <div class="field">
+                    <label for="complianceStatus">Compliance Status</label>
+                    <select id="complianceStatus" name="complianceStatus">
+                        <option value="">Select status</option>
+                        <option value="COMPLIANT">Compliant</option>
+                        <option value="NON_COMPLIANT">Non-compliant</option>
+                        <option value="PENDING">Pending</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="submit-row">
+                <button type="submit">Save Quality Record</button>
+                <button type="button" id="refreshButton">Refresh Records</button>
+            </div>
+
+            <p id="pageMessage" role="status"></p>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Water Quality Records</h2>
+        <p class="hint">Records retrieved from the Water Quality service.</p>
+
+        <div class="table-wrapper">
+            <div id="records">Loading records...</div>
+        </div>
+    </section>
+
+</div>
+
+<script th:src="@{/js/modules.js}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("qualityForm");
+        const message = document.getElementById("pageMessage");
+        const refreshButton = document.getElementById("refreshButton");
+
+        form.addEventListener("submit", function () {
+            message.textContent = "Submitting quality record...";
+        });
+
+        refreshButton.addEventListener("click", function () {
+            window.location.reload();
+        });
+    });
+</script>
+
+</body>
+</html>

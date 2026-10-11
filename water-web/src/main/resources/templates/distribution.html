@@ -1,0 +1,462 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Distribution | Water Management</title>
+    <link rel="stylesheet" th:href="@{/css/distribution.css}">
+	<link rel="stylesheet" th:href="@{/css/modules.css}">
+</head>
+<body>
+
+<div class="page">
+
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">WATER MANAGEMENT SYSTEM</p>
+            <h1>Water Distribution</h1>
+            <p class="subtitle">
+                Monitor supply schedules, infrastructure, requests and storage.
+            </p>
+        </div>
+        <a th:href="@{/}" class="back-button">← Dashboard</a>
+    </header>
+
+    <div id="globalMessage" class="message" role="status">
+        Connecting to distribution services...
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <section class="summary-grid">
+        <article class="summary-card">
+            <div class="summary-icon purple">▦</div>
+            <p>Distribution Schedules</p>
+            <h2 id="scheduleCount">--</h2>
+            <span>Recorded schedules</span>
+        </article>
+
+        <article class="summary-card">
+            <div class="summary-icon blue">⌁</div>
+            <p>Pipelines</p>
+            <h2 id="pipelineCount">--</h2>
+            <span>Registered pipelines</span>
+        </article>
+
+        <article class="summary-card">
+            <div class="summary-icon green">⌖</div>
+            <p>Supply Zones</p>
+            <h2 id="zoneCount">--</h2>
+            <span>Distribution areas</span>
+        </article>
+
+        <article class="summary-card">
+            <div class="summary-icon orange">☷</div>
+            <p>Supply Requests</p>
+            <h2 id="requestCount">--</h2>
+            <span>Recorded requests</span>
+        </article>
+
+        <article class="summary-card">
+            <div class="summary-icon cyan">♒</div>
+            <p>Water Tanks</p>
+            <h2 id="tankCount">--</h2>
+            <span>Registered storage tanks</span>
+        </article>
+    </section>
+
+    <!-- TANK CAPACITY SUMMARY -->
+    <section class="panel">
+        <div class="section-heading">
+            <div>
+                <h2>Water Storage Overview</h2>
+                <p>Current stored water compared with total tank capacity.</p>
+            </div>
+        </div>
+
+        <div class="storage-stats">
+            <div>
+                <span>Total Capacity</span>
+                <strong id="totalCapacity">--</strong>
+            </div>
+            <div>
+                <span>Current Water</span>
+                <strong id="currentWater">--</strong>
+            </div>
+            <div>
+                <span>Overall Utilization</span>
+                <strong id="utilization">--</strong>
+            </div>
+        </div>
+
+        <div class="progress-track">
+            <div id="storageProgress" class="progress-fill"></div>
+        </div>
+        <p id="storageMessage" class="small-note">
+            Storage statistics will appear when tank data loads.
+        </p>
+    </section>
+
+    <!-- MODULE NAVIGATION -->
+    <nav class="module-nav" aria-label="Distribution modules">
+        <button class="nav-tab active" data-target="schedules">Schedules</button>
+        <button class="nav-tab" data-target="pipelines">Pipelines</button>
+        <button class="nav-tab" data-target="zones">Supply Zones</button>
+        <button class="nav-tab" data-target="requests">Supply Requests</button>
+        <button class="nav-tab" data-target="tanks">Water Tanks</button>
+    </nav>
+
+    <!-- SCHEDULES -->
+    <section class="panel module-section" id="schedules">
+        <div class="section-heading">
+            <div>
+                <h2>Distribution Schedules</h2>
+                <p>Review water supply dates, timings and schedule statuses.</p>
+            </div>
+            <button class="secondary-button" data-reload="schedules">↻ Refresh</button>
+        </div>
+
+        <div class="toolbar">
+            <input class="search-input" id="search-schedules"
+                   placeholder="Search schedules..." aria-label="Search schedules">
+            <select class="status-filter" id="filter-schedules"
+                    aria-label="Filter schedules by status">
+                <option value="">All statuses</option>
+            </select>
+        </div>
+
+        <p class="table-message" id="message-schedules"></p>
+        <div class="table-wrapper" id="table-schedules"></div>
+    </section>
+
+    <!-- PIPELINES -->
+    <section class="panel module-section hidden" id="pipelines">
+        <div class="section-heading">
+            <div>
+                <h2>Pipelines</h2>
+                <p>Inspect pipeline materials, lengths, statuses and associations.</p>
+            </div>
+            <button class="secondary-button" data-reload="pipelines">↻ Refresh</button>
+        </div>
+
+        <div class="toolbar">
+            <input class="search-input" id="search-pipelines"
+                   placeholder="Search pipelines..." aria-label="Search pipelines">
+            <select class="status-filter" id="filter-pipelines"
+                    aria-label="Filter pipelines by status">
+                <option value="">All statuses</option>
+            </select>
+        </div>
+
+        <p class="table-message" id="message-pipelines"></p>
+        <div class="table-wrapper" id="table-pipelines"></div>
+    </section>
+
+    <!-- ZONES -->
+    <section class="panel module-section hidden" id="zones">
+        <div class="section-heading">
+            <div>
+                <h2>Supply Zones</h2>
+                <p>Review distribution areas, locations and population coverage.</p>
+            </div>
+            <button class="secondary-button" data-reload="zones">↻ Refresh</button>
+        </div>
+
+        <div class="toolbar">
+            <input class="search-input" id="search-zones"
+                   placeholder="Search supply zones..." aria-label="Search supply zones">
+            <select class="status-filter" id="filter-zones"
+                    aria-label="Filter zones by status">
+                <option value="">All statuses</option>
+            </select>
+        </div>
+
+        <p class="table-message" id="message-zones"></p>
+        <div class="table-wrapper" id="table-zones"></div>
+    </section>
+
+    <!-- REQUESTS -->
+    <section class="panel module-section hidden" id="requests">
+        <div class="section-heading">
+            <div>
+                <h2>Water Supply Requests</h2>
+                <p>Track requested quantities, requesters and processing statuses.</p>
+            </div>
+            <button class="secondary-button" data-reload="requests">↻ Refresh</button>
+        </div>
+
+        <div class="toolbar">
+            <input class="search-input" id="search-requests"
+                   placeholder="Search requests..." aria-label="Search requests">
+            <select class="status-filter" id="filter-requests"
+                    aria-label="Filter requests by status">
+                <option value="">All statuses</option>
+            </select>
+        </div>
+
+        <p class="table-message" id="message-requests"></p>
+        <div class="table-wrapper" id="table-requests"></div>
+    </section>
+
+    <!-- TANKS -->
+    <section class="panel module-section hidden" id="tanks">
+        <div class="section-heading">
+            <div>
+                <h2>Water Tanks</h2>
+                <p>Monitor tank capacities, current levels and operational statuses.</p>
+            </div>
+            <button class="secondary-button" data-reload="tanks">↻ Refresh</button>
+        </div>
+
+        <div class="toolbar">
+            <input class="search-input" id="search-tanks"
+                   placeholder="Search water tanks..." aria-label="Search water tanks">
+            <select class="status-filter" id="filter-tanks"
+                    aria-label="Filter tanks by status">
+                <option value="">All statuses</option>
+            </select>
+        </div>
+
+        <p class="table-message" id="message-tanks"></p>
+        <div class="table-wrapper" id="table-tanks"></div>
+    </section>
+
+    <footer>
+        Water Management System · Distribution Module
+    </footer>
+</div>
+
+<script>
+/*
+ * IMPORTANT:
+ * These endpoint paths are assumptions. Match them to the
+ * @RequestMapping and @GetMapping paths in your backend controllers.
+ */
+ const API = {
+     schedules: "/ui-api/distribution/api/schedules",
+     zones: "/ui-api/distribution/api/zones",
+	 pipelines:"/ui-api/distribution/api/pipelines",
+     requests: "/ui-api/distribution/api/distributions",
+     tanks: "/ui-api/distribution/api/tanks"
+ };
+
+const moduleData = {
+    schedules: [],
+    pipelines: [],
+    zones: [],
+    requests: [],
+    tanks: []
+};
+
+function formatKey(key) {
+    return key
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, char => char.toUpperCase());
+}
+
+function formatValue(value) {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "object") return JSON.stringify(value);
+    return String(value);
+}
+
+function statusClass(value) {
+    const status = String(value || "").toLowerCase().replace(/[\s_]+/g, "-");
+    if (["active", "completed", "resolved", "approved", "fulfilled"].includes(status))
+        return "status-good";
+    if (["pending", "scheduled", "in-progress", "in_progress"].includes(status))
+        return "status-pending";
+    if (["inactive", "failed", "rejected", "cancelled", "cancelled"].includes(status))
+        return "status-bad";
+    return "status-neutral";
+}
+
+function renderTable(key) {
+    const records = moduleData[key];
+    const container = document.getElementById("table-" + key);
+    const search = document.getElementById("search-" + key).value.toLowerCase().trim();
+    const statusFilter = document.getElementById("filter-" + key).value.toLowerCase();
+
+    const filtered = records.filter(record => {
+        const matchesSearch = Object.values(record).some(value =>
+            formatValue(value).toLowerCase().includes(search)
+        );
+
+        const status = String(record.status || "").toLowerCase();
+        return matchesSearch && (!statusFilter || status === statusFilter);
+    });
+
+    container.replaceChildren();
+
+    if (!filtered.length) {
+        container.innerHTML = '<div class="empty-state">No matching records found.</div>';
+        return;
+    }
+
+    const columns = [...new Set(filtered.flatMap(record => Object.keys(record)))];
+    const table = document.createElement("table");
+    const thead = table.createTHead();
+    const headerRow = thead.insertRow();
+
+    columns.forEach(column => {
+        const th = document.createElement("th");
+        th.textContent = formatKey(column);
+        headerRow.appendChild(th);
+    });
+
+    const tbody = table.createTBody();
+
+    filtered.forEach(record => {
+        const row = tbody.insertRow();
+
+        columns.forEach(column => {
+            const cell = row.insertCell();
+            const value = record[column];
+
+            if (column.toLowerCase() === "status" && value != null) {
+                const badge = document.createElement("span");
+                badge.className = "status-badge " + statusClass(value);
+                badge.textContent = formatValue(value).replace(/_/g, " ");
+                cell.appendChild(badge);
+            } else {
+                cell.textContent = formatValue(value);
+            }
+        });
+    });
+
+    container.appendChild(table);
+}
+
+function populateStatusFilter(key) {
+    const select = document.getElementById("filter-" + key);
+    const previous = select.value;
+
+    select.replaceChildren();
+
+    const allOption = document.createElement("option");
+    allOption.value = "";
+    allOption.textContent = "All statuses";
+    select.appendChild(allOption);
+
+    const statuses = [...new Set(
+        moduleData[key]
+            .map(record => record.status)
+            .filter(value => value != null && String(value).trim() !== "")
+            .map(value => String(value))
+    )].sort();
+
+    statuses.forEach(status => {
+        const option = document.createElement("option");
+        option.value = status.toLowerCase();
+        option.textContent = status.replace(/_/g, " ");
+        select.appendChild(option);
+    });
+
+    select.value = previous;
+}
+
+async function loadModule(key) {
+    const message = document.getElementById("message-" + key);
+    message.textContent = "Loading records...";
+
+    try {
+        const response = await fetch(API[key], {
+            headers: { "Accept": "application/json" }
+        });
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status + " from " + API[key]);
+        }
+
+        const data = await response.json();
+
+        // Support endpoints returning either a list or an object wrapper.
+        const records = Array.isArray(data) ? data :
+            Array.isArray(data.content) ? data.content :
+            Array.isArray(data.data) ? data.data : null;
+
+        if (!records) {
+            throw new Error("The endpoint did not return a list of records.");
+        }
+
+        moduleData[key] = records;
+        populateStatusFilter(key);
+        renderTable(key);
+        message.textContent = records.length + " record(s) loaded.";
+
+        updateSummary();
+    } catch (error) {
+        message.textContent = "Could not load records: " + error.message;
+        document.getElementById("table-" + key).innerHTML =
+            '<div class="empty-state">Unable to load data. Check the API endpoint and backend service.</div>';
+        console.error("Distribution module error:", key, error);
+    }
+}
+
+function updateSummary() {
+    document.getElementById("scheduleCount").textContent = moduleData.schedules.length;
+    document.getElementById("pipelineCount").textContent = moduleData.pipelines.length;
+    document.getElementById("zoneCount").textContent = moduleData.zones.length;
+    document.getElementById("requestCount").textContent = moduleData.requests.length;
+    document.getElementById("tankCount").textContent = moduleData.tanks.length;
+
+    const capacity = moduleData.tanks.reduce(
+        (sum, tank) => sum + (Number(tank.capacityLitres ?? tank.capacity_litres) || 0), 0
+    );
+
+    const current = moduleData.tanks.reduce(
+        (sum, tank) => sum + (Number(tank.currentLevelLitres ?? tank.current_level_litres) || 0), 0
+    );
+
+    const percent = capacity > 0 ? Math.min(100, current / capacity * 100) : 0;
+
+    document.getElementById("totalCapacity").textContent =
+        capacity.toLocaleString() + " L";
+    document.getElementById("currentWater").textContent =
+        current.toLocaleString() + " L";
+    document.getElementById("utilization").textContent =
+        capacity > 0 ? percent.toFixed(1) + "%" : "N/A";
+    document.getElementById("storageProgress").style.width = percent + "%";
+
+    document.getElementById("storageMessage").textContent =
+        capacity > 0
+            ? "Based on " + moduleData.tanks.length + " tank record(s)."
+            : "Capacity data is unavailable or no tanks have been recorded.";
+
+    document.getElementById("globalMessage").textContent =
+        "Distribution dashboard loaded. Counts reflect records returned by each endpoint.";
+}
+
+document.querySelectorAll(".nav-tab").forEach(button => {
+    button.addEventListener("click", () => {
+        document.querySelectorAll(".nav-tab").forEach(tab =>
+            tab.classList.remove("active")
+        );
+        document.querySelectorAll(".module-section").forEach(section =>
+            section.classList.add("hidden")
+        );
+
+        button.classList.add("active");
+        document.getElementById(button.dataset.target).classList.remove("hidden");
+    });
+});
+
+Object.keys(API).forEach(key => {
+    document.getElementById("search-" + key).addEventListener("input", () => renderTable(key));
+    document.getElementById("filter-" + key).addEventListener("change", () => renderTable(key));
+});
+
+document.querySelectorAll("[data-reload]").forEach(button => {
+    button.addEventListener("click", () => loadModule(button.dataset.reload));
+});
+
+async function initializeDashboard() {
+    await Promise.all(Object.keys(API).map(key => loadModule(key)));
+}
+
+initializeDashboard();
+</script>
+
+</body>
+</html>

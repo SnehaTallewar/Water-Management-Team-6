@@ -2,6 +2,7 @@
 package com.water.water_quality_service.entity;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDate;
 
 @Entity

@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Infrastructure</title>
+    <link rel="stylesheet" th:href="@{/css/modules.css}">
+    <style>
+        .search-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: end;
+            margin-bottom: 18px;
+        }
+        .search-row .field {
+            flex: 1;
+            min-width: 180px;
+        }
+        .message {
+            margin-top: 12px;
+            color: #176b87;
+            overflow-wrap: anywhere;
+        }
+        .action-button { margin: 3px; }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Water Infrastructure</h1>
+        <a class="back-link" th:href="@{/}">← Dashboard</a>
+    </div>
+
+    <section class="card">
+        <h2>Search Pump by ID</h2>
+        <div class="search-row">
+            <div class="field">
+                <label for="pumpId">Pump ID</label>
+                <input id="pumpId" type="number" min="1" placeholder="Enter pump ID">
+            </div>
+            <button type="button" id="searchPump">Search Pump</button>
+            <button type="button" id="showPumps">Show All Pumps</button>
+        </div>
+        <div id="pumpMessage" class="message" role="status"></div>
+        <div class="table-wrapper"><div id="pumpRecords">Load pumps to view records.</div></div>
+    </section>
+
+    <section class="card">
+        <h2>Search Pipeline by ID</h2>
+        <div class="search-row">
+            <div class="field">
+                <label for="pipelineId">Pipeline ID</label>
+                <input id="pipelineId" type="number" min="1" placeholder="Enter pipeline ID">
+            </div>
+            <button type="button" id="searchPipeline">Search Pipeline</button>
+            <button type="button" id="showPipelines">Show All Pipelines</button>
+        </div>
+        <div id="pipelineMessage" class="message" role="status"></div>
+        <div class="table-wrapper"><div id="pipelineRecords">Load pipelines to view records.</div></div>
+    </section>
+
+    <section class="card">
+        <h2>Update Maintenance Status</h2>
+        <form id="maintenanceForm">
+            <div class="form-grid">
+                <div class="field">
+                    <label for="maintenanceId">Maintenance Record ID *</label>
+                    <input id="maintenanceId" type="number" min="1" required>
+                </div>
+                <div class="field">
+                    <label for="maintenanceStatus">New Status *</label>
+                    <select id="maintenanceStatus" required>
+                        <option value="">Choose status</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="RESOLVED">Resolved</option>
+                    </select>
+                </div>
+            </div>
+            <div class="submit-row">
+                <button type="submit">Update Status</button>
+                <button type="button" id="showMaintenance">Show Maintenance Records</button>
+            </div>
+        </form>
+        <div id="maintenanceMessage" class="message" role="status"></div>
+        <div class="table-wrapper"><div id="maintenanceRecords">Load maintenance records to view them.</div></div>
+    </section>
+</div>
+
+<script>
+const infraEndpoints = {
+    pumps: "/ui-api/infrastructure/api/pumps",
+    pipelines: "/ui-api/infrastructure/api/pipelines",
+    maintenance: "/ui-api/infrastructure/api/maintenance"
+};
+
+async function infraRequest(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        headers: {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        }
+    });
+    const text = await response.text();
+    if (!response.ok) {
+        throw new Error("HTTP " + response.status + ": " + text);
+    }
+    if (!text) return null;
+    try { return JSON.parse(text); } catch { return text; }
+}
+
+function displayRecords(containerId, records) {
+    const container = document.getElementById(containerId);
+    container.replaceChildren();
+
+    if (!Array.isArray(records)) {
+        container.textContent = records == null ? "No data returned." : String(records);
+        return;
+    }
+    if (records.length === 0) {
+        container.textContent = "No matching records found.";
+        return;
+    }
+
+    const table = document.createElement("table");
+    const head = table.createTHead().insertRow();
+    const keys = [...new Set(records.flatMap(record => Object.keys(record)))];
+
+    keys.forEach(key => {
+        const th = document.createElement("th");
+        th.textContent = key;
+        head.appendChild(th);
+    });
+
+    const body = table.createTBody();
+    records.forEach(record => {
+        const row = body.insertRow();
+        keys.forEach(key => {
+            row.insertCell().textContent = record[key] == null ? "" :
+                (typeof record[key] === "object" ? JSON.stringify(record[key]) : String(record[key]));
+        });
+    });
+    container.appendChild(table);
+}
+
+async function loadInfrastructure(kind, id, messageId, tableId) {
+    const message = document.getElementById(messageId);
+    message.textContent = "Loading...";
+    try {
+        const data = await infraRequest(infraEndpoints[kind]);
+        const records = Array.isArray(data) ? data : [];
+        const matches = id === null ? records :
+            records.filter(record => String(record.id) === String(id));
+        displayRecords(tableId, matches);
+        message.textContent = id !== null && matches.length === 0
+            ? "No " + kind + " found with ID " + id + "."
+            : "Found " + matches.length + " record(s).";
+    } catch (error) {
+        message.textContent = "Could not load records. " + error.message;
+    }
+}
+
+document.getElementById("searchPump").addEventListener("click", () => {
+    const id = document.getElementById("pumpId").value.trim();
+    if (!id) {
+        document.getElementById("pumpMessage").textContent = "Enter a pump ID first.";
+        return;
+    }
+    loadInfrastructure("pumps", id, "pumpMessage", "pumpRecords");
+});
+
+document.getElementById("showPumps").addEventListener("click", () =>
+    loadInfrastructure("pumps", null, "pumpMessage", "pumpRecords"));
+
+document.getElementById("searchPipeline").addEventListener("click", () => {
+    const id = document.getElementById("pipelineId").value.trim();
+    if (!id) {
+        document.getElementById("pipelineMessage").textContent = "Enter a pipeline ID first.";
+        return;
+    }
+    loadInfrastructure("pipelines", id, "pipelineMessage", "pipelineRecords");
+});
+
+document.getElementById("showPipelines").addEventListener("click", () =>
+    loadInfrastructure("pipelines", null, "pipelineMessage", "pipelineRecords"));
+
+document.getElementById("showMaintenance").addEventListener("click", () =>
+    loadInfrastructure("maintenance", null, "maintenanceMessage", "maintenanceRecords"));
+
+	
+	document.getElementById("maintenanceForm").addEventListener("submit", async event => {
+	    event.preventDefault();
+
+	    const id = document.getElementById("maintenanceId").value.trim();
+	    const status = document.getElementById("maintenanceStatus").value;
+	    const message = document.getElementById("maintenanceMessage");
+
+	    message.textContent = "Updating status...";
+
+	    try {
+	        // Get the existing maintenance record first
+	        const record = await infraRequest(
+	            infraEndpoints.maintenance + "/" + encodeURIComponent(id)
+	        );
+
+	        // Update the complete record using the backend's PUT endpoint
+	        await infraRequest(
+	            infraEndpoints.maintenance + "/" + encodeURIComponent(id),
+	            {
+	                method: "PUT",
+	                body: JSON.stringify({
+	                    pumpId: record.pumpId,
+	                    description: record.description,
+	                    maintenanceDate: record.maintenanceDate,
+	                    status: status
+	                })
+	            }
+	        );
+
+	        message.textContent = "Maintenance status updated successfully.";
+
+	        await loadInfrastructure(
+	            "maintenance",
+	            null,
+	            "maintenanceMessage",
+	            "maintenanceRecords"
+	        );
+
+	    } catch (error) {
+	        message.textContent = "Status update failed: " + error.message;
+	        console.error("Maintenance update error:", error);
+	    }
+	});
+	
+
+loadInfrastructure("pumps", null, "pumpMessage", "pumpRecords");
+loadInfrastructure("pipelines", null, "pipelineMessage", "pipelineRecords");
+loadInfrastructure("maintenance", null, "maintenanceMessage", "maintenanceRecords");
+</script>
+</body>
+</html>
