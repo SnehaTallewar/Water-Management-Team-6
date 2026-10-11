@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Water Resources</title>
+	<link rel="stylesheet" th:href="@{/css/modules.css}">
+</head>
+<body data-module="resources">
+<h1>Water Resources</h1>
+<p><a th:href="@{/}">← Dashboard</a></p>
+
+<h2>Add Reservoir</h2>
+<form data-endpoint="/ui-api/resources/api/reservoirs">
+    <label>Name <input name="name" required></label><br>
+    <label>Location <input name="location" required></label><br>
+    <label>Capacity <input name="capacity" type="number" min="0" step="any" required></label><br>
+    <label>Current water level <input name="currentWaterLevel" type="number" min="0" step="any" required></label><br>
+    <label>Inflow <input name="inflow" type="number" min="0" step="any" required></label><br>
+    <label>Outflow <input name="outflow" type="number" min="0" step="any" required></label><br>
+    <button type="submit">Save Reservoir</button>
+</form>
+
+<h2>Reservoir Records</h2>
+<div id="records">Loading...</div>
+<script th:src="@{/js/modules.js}"></script>
+</body>
+</html>
